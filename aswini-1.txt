@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Flashcard Quiz App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .app-container {
+      max-width: 600px;
+      margin: auto;
+      background-color: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .flashcard {
+      background-color: #e6f7ff;
+      border: 2px solid #007acc;
+      border-radius: 10px;
+      padding: 30px;
+      margin: 20px 0;
+      min-height: 120px;
+      font-size: 1.2em;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .card-side.hidden {
+      display: none;
+    }
+
+    button {
+      margin: 8px;
+      padding: 10px 16px;
+      font-size: 1em;
+      border: none;
+      background-color: #007acc;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #005fa3;
+    }
+
+    input {
+      margin: 6px;
+      padding: 8px;
+      width: 40%;
+      font-size: 1em;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    .controls, .manage-cards {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <h1>📘 Flashcard Quiz App</h1>
+
+    <div class="flashcard">
+      <div id="card-front" class="card-side">Question</div>
+      <div id="card-back" class="card-side hidden">Answer</div>
+    </div>
+
+    <div class="controls">
+      <button id="show-answer">Show Answer</button>
+      <button id="prev">Previous</button>
+      <button id="next">Next</button>
+    </div>
+
+    <div class="manage-cards">
+      <input type="text" id="question-input" placeholder="Enter question">
+      <input type="text" id="answer-input" placeholder="Enter answer">
+      <br/>
+      <button id="add-card">Add Flashcard</button>
+      <button id="edit-card">Edit Flashcard</button>
+      <button id="delete-card">Delete Flashcard</button>
+    </div>
+  </div>
+
+  <script>
+    let flashcards = [
+      { question: "What is the capital of France?", answer: "Paris" },
+      { question: "What is 2 + 2?", answer: "4" }
+    ];
+
+    let currentIndex = 0;
+
+    const cardFront = document.getElementById("card-front");
+    const cardBack = document.getElementById("card-back");
+    const showAnswerBtn = document.getElementById("show-answer");
+    const prevBtn = document.getElementById("prev");
+    const nextBtn = document.getElementById("next");
+    const questionInput = document.getElementById("question-input");
+    const answerInput = document.getElementById("answer-input");
+    const addCardBtn = document.getElementById("add-card");
+    const editCardBtn = document.getElementById("edit-card");
+    const deleteCardBtn = document.getElementById("delete-card");
+
+    function renderCard() {
+      if (flashcards.length === 0) {
+        cardFront.textContent = "No flashcards available.";
+        cardBack.textContent = "";
+        return;
+      }
+      const currentCard = flashcards[currentIndex];
+      cardFront.textContent = currentCard.question;
+      cardBack.textContent = currentCard.answer;
+      cardFront.classList.remove("hidden");
+      cardBack.classList.add("hidden");
+    }
+
+    showAnswerBtn.onclick = () => {
+      cardFront.classList.toggle("hidden");
+      cardBack.classList.toggle("hidden");
+    };
+
+    nextBtn.onclick = () => {
+      if (flashcards.length === 0) return;
+      currentIndex = (currentIndex + 1) % flashcards.length;
+      renderCard();
+    };
+
+    prevBtn.onclick = () => {
+      if (flashcards.length === 0) return;
+      currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length;
+      renderCard();
+    };
+
+    addCardBtn.onclick = () => {
+      const question = questionInput.value.trim();
+      const answer = answerInput.value.trim();
+      if (question && answer) {
+        flashcards.push({ question, answer });
+        currentIndex = flashcards.length - 1;
+        renderCard();
+        questionInput.value = "";
+        answerInput.value = "";
+      }
+    };
+
+    editCardBtn.onclick = () => {
+      if (flashcards.length === 0) return;
+      const question = questionInput.value.trim();
+      const answer = answerInput.value.trim();
+      if (question && answer) {
+        flashcards[currentIndex] = { question, answer };
+        renderCard();
+        questionInput.value = "";
+        answerInput.value = "";
+      }
+    };
+
+    deleteCardBtn.onclick = () => {
+      if (flashcards.length === 0) return;
+      flashcards.splice(currentIndex, 1);
+      if (currentIndex >= flashcards.length) {
+        currentIndex = flashcards.length - 1;
+      }
+      renderCard();
+    };
+
+    renderCard();
+  </script>
+</body>
+</html>
+

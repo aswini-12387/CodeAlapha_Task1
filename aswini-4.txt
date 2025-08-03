@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Language Learning App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f9fbfd;
+      margin: 0;
+      padding: 1rem;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.08);
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    .tabs {
+      display: flex;
+      margin-bottom: 1rem;
+    }
+
+    .tabs button {
+      flex: 1;
+      padding: 1rem;
+      background: #007acc;
+      color: white;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+    }
+
+    .tabs button.active {
+      background: #005fa3;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .flashcard, .quiz-box {
+      background: #f1f7ff;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-top: 1rem;
+    }
+
+    .flashcard p, .quiz-box p {
+      font-size: 1.2rem;
+    }
+
+    button.action {
+      margin-top: 0.5rem;
+      background: #28a745;
+      color: white;
+      padding: 0.6rem 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button.action:hover {
+      background: #1e7e34;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.6rem;
+      margin-top: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    .result {
+      font-weight: bold;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌍 Language Learning App</h1>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('vocabulary')">Vocabulary</button>
+      <button class="tab" onclick="switchTab('grammar')">Grammar</button>
+      <button class="tab" onclick="switchTab('quiz')">Quiz</button>
+    </div>
+
+    <!-- Vocabulary Tab -->
+    <div id="vocabulary" class="section active">
+      <h2>Vocabulary Flashcards</h2>
+      <div class="flashcard">
+        <p><strong>Word:</strong> <span id="vocab-word"></span></p>
+        <p><strong>Meaning:</strong> <span id="vocab-meaning"></span></p>
+        <button class="action" onclick="speakWord()">🔊 Pronounce</button>
+        <button class="action" onclick="nextVocab()">Next</button>
+      </div>
+    </div>
+
+    <!-- Grammar Tab -->
+    <div id="grammar" class="section">
+      <h2>Grammar Tip of the Day</h2>
+      <div class="flashcard">
+        <p id="grammar-tip"></p>
+        <button class="action" onclick="nextGrammar()">Next Tip</button>
+      </div>
+    </div>
+
+    <!-- Quiz Tab -->
+    <div id="quiz" class="section">
+      <h2>Vocabulary Quiz</h2>
+      <div class="quiz-box">
+        <p><strong>Translate:</strong> <span id="quiz-word"></span></p>
+        <input type="text" id="quiz-answer" placeholder="Enter meaning..." />
+        <button class="action" onclick="checkAnswer()">Check</button>
+        <p id="quiz-result" class="result"></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Vocabulary List
+    const vocabulary = [
+      { word: "Bonjour", meaning: "Hello" },
+      { word: "Merci", meaning: "Thank you" },
+      { word: "Chien", meaning: "Dog" },
+      { word: "Chat", meaning: "Cat" },
+      { word: "Pomme", meaning: "Apple" },
+      { word: "Pain", meaning: "Bread" }
+    ];
+
+    // Grammar Tips
+    const grammarTips = [
+      "In French, adjectives usually follow the noun (e.g., 'une pomme rouge' = a red apple).",
+      "Use 'le' for masculine nouns and 'la' for feminine nouns.",
+      "'Être' means 'to be' and is an irregular verb.",
+      "'Avoir' means 'to have' and is also irregular.",
+      "To form questions, invert the subject and verb (e.g., 'Parlez-vous français?')."
+    ];
+
+    // Track current index
+    let vocabIndex = 0;
+    let grammarIndex = 0;
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      event.target.classList.add('active');
+      if (tabId === 'quiz') loadQuiz();
+    }
+
+    function nextVocab() {
+      vocabIndex = (vocabIndex + 1) % vocabulary.length;
+      updateVocab();
+    }
+
+    function updateVocab() {
+      const item = vocabulary[vocabIndex];
+      document.getElementById("vocab-word").textContent = item.word;
+      document.getElementById("vocab-meaning").textContent = item.meaning;
+    }
+
+    function speakWord() {
+      const word = vocabulary[vocabIndex].word;
+      const utterance = new SpeechSynthesisUtterance(word);
+      utterance.lang = "fr-FR";
+      speechSynthesis.speak(utterance);
+    }
+
+    function nextGrammar() {
+      grammarIndex = (grammarIndex + 1) % grammarTips.length;
+      document.getElementById("grammar-tip").textContent = grammarTips[grammarIndex];
+    }
+
+    function loadQuiz() {
+      const random = vocabulary[Math.floor(Math.random() * vocabulary.length)];
+      document.getElementById("quiz-word").textContent = random.word;
+      document.getElementById("quiz-word").dataset.answer = random.meaning.toLowerCase();
+      document.getElementById("quiz-answer").value = '';
+      document.getElementById("quiz-result").textContent = '';
+    }
+
+    function checkAnswer() {
+      const answer = document.getElementById("quiz-answer").value.trim().toLowerCase();
+      const correct = document.getElementById("quiz-word").dataset.answer;
+      const result = document.getElementById("quiz-result");
+      if (answer === correct) {
+        result.textContent = "✅ Correct!";
+        result.style.color = "green";
+      } else {
+        result.textContent = `❌ Incorrect. Correct: ${correct}`;
+        result.style.color = "red";
+      }
+      setTimeout(loadQuiz, 2000);
+    }
+
+    // Initial loads
+    updateVocab();
+    nextGrammar();
+  </script>
+</body>
+</html>
